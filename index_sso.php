@@ -1,7 +1,7 @@
 <?php
 /*
-* Signature-Based Single Sign-On Framework
-* TPA Adapter for
+* DirectSSO Single Sign-On Framework
+* SSO Adapter for
 * ILIAS (http://www.ilias.de)
 *
 *  Version            : 0.3.0
