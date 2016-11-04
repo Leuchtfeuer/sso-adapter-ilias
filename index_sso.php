@@ -1,13 +1,11 @@
 <?php
-//Beispiel-Link: http://localhost/~mjansen/lemken/sigsso.php?&version=2.0&user=t.kandel%40bitmotion.de&tpa_id=ilias&expires=141240509530&action=logon&flags=Y3JlYXRlX21vZGlmeT0x&userdata=dXNlcm5hbWU9dC5rYW5kZWxAYml0bW90aW9uLmRlfHVzZXJncm91cD1TU09fU3RhbmRhcmRfR3JvdXA%3D&returnTo=
-//Beispiel-Link: http://localhost/~mjansen/lemken/sigsso.php?&version=2.0&user=root&tpa_id=ilias&expires=141240509530&action=logon&flags=Y3JlYXRlX21vZGlmeT0x&userdata=dXNlcm5hbWU9dC5rYW5kZWxAYml0bW90aW9uLmRlfHVzZXJncm91cD1TU09fU3RhbmRhcmRfR3JvdXA%3D&returnTo=
 /*
 * DirectSSO Single Sign-On Framework
 * SSO Adapter for
 * ILIAS (http://www.ilias.de)
 *
-*  Version            : 0.3.0
-*  Last update        : 25.08.2015
+*  Version            : 0.4.0
+*  Last update        : 24.10.2016
 *
 *  (c) Bitmotion GmbH, Hannover, Germany
 *  http://www.single-signon.com
