@@ -4,8 +4,9 @@
 * SSO Adapter for
 * ILIAS (http://www.ilias.de)
 *
-*  Version            : 0.4.0
-*  Last update        : 24.10.2016
+*  Version            				: 0.4.0
+*  Last update      				: 24.10.2016
+*  Developed against App version	: 5.0.5
 *
 *  (c) Bitmotion GmbH, Hannover, Germany
 *  http://www.single-signon.com
