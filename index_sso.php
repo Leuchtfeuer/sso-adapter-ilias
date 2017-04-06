@@ -13,37 +13,29 @@
 */
 
 ini_set('display_errors', 1);
-if(version_compare(PHP_VERSION, '5.4.0', '>='))
-{
-	// Prior to PHP 5.4.0 E_ALL does not include E_STRICT.
-	// With PHP 5.4.0 and above E_ALL >DOES< include E_STRICT.
+if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+    // Prior to PHP 5.4.0 E_ALL does not include E_STRICT.
+    // With PHP 5.4.0 and above E_ALL >DOES< include E_STRICT.
 
-	error_reporting(((ini_get("error_reporting") & ~E_NOTICE) & ~E_DEPRECATED) & ~E_STRICT);
-}
-elseif(version_compare(PHP_VERSION, '5.3.0', '>='))
-{
-	error_reporting((ini_get("error_reporting") & ~E_NOTICE) & ~E_DEPRECATED);
-}
-else
-{
-	error_reporting(ini_get('error_reporting') & ~E_NOTICE);
+    error_reporting(((ini_get("error_reporting") & ~E_NOTICE) & ~E_DEPRECATED) & ~E_STRICT);
+} elseif (version_compare(PHP_VERSION, '5.3.0', '>=')) {
+    error_reporting((ini_get("error_reporting") & ~E_NOTICE) & ~E_DEPRECATED);
+} else {
+    error_reporting(ini_get('error_reporting') & ~E_NOTICE);
 }
 chdir(realpath(dirname(__FILE__)));
 
 // Configure client id
 $config['client_id'] = 'ssodemo';
-$client_dirs         = glob("./data/*", GLOB_ONLYDIR);
-foreach((array)$client_dirs as $dir)
-{
-	if(file_exists($dir . '/client.ini.php') && is_readable($dir . '/client.ini.php'))
-	{
-		$ini = @parse_ini_file($dir . '/client.ini.php', true);
-		if(is_array($ini) && isset($ini['client']) && isset($ini['client']['name']) && strlen($ini['client']['name']))
-		{
-			$config['client_id'] = $ini['client']['name'];
-			break;
-		}
-	}
+$client_dirs = glob("./data/*", GLOB_ONLYDIR);
+foreach ((array)$client_dirs as $dir) {
+    if (file_exists($dir . '/client.ini.php') && is_readable($dir . '/client.ini.php')) {
+        $ini = @parse_ini_file($dir . '/client.ini.php', true);
+        if (is_array($ini) && isset($ini['client']) && isset($ini['client']['name']) && strlen($ini['client']['name'])) {
+            $config['client_id'] = $ini['client']['name'];
+            break;
+        }
+    }
 }
 
 require_once 'Services/Context/classes/class.ilContext.php';
@@ -65,7 +57,7 @@ global $ilSetting, $ilDB;
  */
 function get_version()
 {
-	return "2.0";
+    return "2.0";
 }
 
 /**
@@ -81,182 +73,169 @@ function get_version()
  * @return         string    Return the session data
  *    Leave stubs if you dont need all four params.
  */
-function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action = "", $sso_userdata = array())
+function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action = "", $sso_userdata = [])
 {
-	global $config, $ilDB, $ilSetting;
-	$config['client_id'] = 'ssodemo';
+    global $config, $ilDB, $ilSetting;
+    $config['client_id'] = 'ssodemo';
 
-	if($sso_version == '')
-	{
-		return array('Error' => 'sso version out of date');
-	}
+    if ($sso_version == '') {
+        return ['Error' => 'sso version out of date'];
+    }
 
-	$usr_id = ilObjUser::_loginExists($User_Name);
+    $usr_id = ilObjUser::_loginExists($User_Name);
 
-	// Parse the submitted groups where the user is a member
-	//$sso_groups = explode(',', $sso_userdata['usergroup']);
+    // Parse the submitted groups where the user is a member
+    //$sso_groups = explode(',', $sso_userdata['usergroup']);
 
-	switch($sso_action)
-	{
-		// Action: create user / update userdata
-		case 'create_modify':
-			// User does not exist yet
-			if(!$usr_id)
-			{
-				$userData = array(
-					'login'                => $User_Name,
-					'email'                => $sso_userdata['email'],
-					'active'               => 1,
-					'passwd_type'          => IL_PASSWD_PLAIN,
-					'auth_mode'            => 'default',
-					'time_limit_unlimited' => 1,
-				);
-				$userData = array_merge($userData, (array)$sso_userdata);
+    switch ($sso_action) {
+        // Action: create user / update userdata
+        case 'create_modify':
+            // User does not exist yet
+            if (!$usr_id) {
+                $userData = [
+                    'login' => $User_Name,
+                    'email' => $sso_userdata['email'],
+                    'active' => 1,
+                    'passwd_type' => IL_PASSWD_PLAIN,
+                    'auth_mode' => 'default',
+                    'time_limit_unlimited' => 1,
+                ];
+                $userData = array_merge($userData, (array)$sso_userdata);
 
-				$userObj = new ilObjUser();
-				$userObj->assignData($userData);
-				$userObj->create();
-				$userObj->saveAsNew();
-				$userObj->setLastPasswordChangeToNow();
+                $userObj = new ilObjUser();
+                $userObj->assignData($userData);
+                $userObj->create();
+                $userObj->saveAsNew();
+                $userObj->setLastPasswordChangeToNow();
 
-				require_once "./Services/AccessControl/classes/class.ilRbacReview.php";
-				require_once "./Services/AccessControl/classes/class.ilRbacSystem.php";
-				require_once "./Services/AccessControl/classes/class.ilRbacAdmin.php";
+                require_once "./Services/AccessControl/classes/class.ilRbacReview.php";
+                require_once "./Services/AccessControl/classes/class.ilRbacSystem.php";
+                require_once "./Services/AccessControl/classes/class.ilRbacAdmin.php";
 
-				/**
-				 * @var $rbacadmin ilRbacAdmin
-				 */
-				global $rbacadmin;
+                /**
+                 * @var $rbacadmin ilRbacAdmin
+                 */
+                global $rbacadmin;
 
-				$rbacreview            = new ilRbacReview();
-				$GLOBALS['rbacreview'] = $rbacreview;
+                $rbacreview = new ilRbacReview();
+                $GLOBALS['rbacreview'] = $rbacreview;
 
-				$rbacsystem            = ilRbacSystem::getInstance();
-				$GLOBALS['rbacsystem'] = $rbacsystem;
+                $rbacsystem = ilRbacSystem::getInstance();
+                $GLOBALS['rbacsystem'] = $rbacsystem;
 
-				$rbacadmin            = new ilRbacAdmin();
-				$GLOBALS['rbacadmin'] = $rbacadmin;
+                $rbacadmin = new ilRbacAdmin();
+                $GLOBALS['rbacadmin'] = $rbacadmin;
 
-				$GLOBALS['rbacadmin']->assignUser(4, $userObj->getId());
-			}
-			else
-			{
-				// User already exists, update profile with data from TYPO3's fe_users
-				$userObj = new ilObjUser($usr_id);
-				// Data used from fe_users: email, country, website
-				$remove_auth = false;
-				if(!isset($GLOBALS['ilAuth']))
-				{
-					require_once 'Services/PEAR/lib/Auth.php';
-					if(!class_exists('ilTmpAuth'))
-					{
-						class ilTmpAuth extends Auth
-						{
-							protected $myusername = '';
-							public function __construct()
-							{
-							}
-							public function getUserName()
-							{
-								return $this->myusername;
-							}
-							public function setUserName($username)
-							{
-								$this->myusername = $username;
-							}
-						}
-					}
-					$tmpauth = new ilTmpAuth();
-					$tmpauth->setUserName($userObj->getLogin());
-					$tmpauth->setAuth($userObj->getLogin());
-					$GLOBALS['ilAuth'] = $tmpauth;
-				}
-				// @todo
-				//$userObj->assignData(array_merge(array('passwd_type' => IL_PASSWD_PLAIN), (array)$sso_userdata));
-				$userObj->update();
-				if($remove_auth)
-				{
-					unset($GLOBALS['ilAuth']);
-				}
-			}
-			break;
-		// Perform logon for given $User_Name
-		case 'logon':
-			if(!$usr_id)
-			{
-				return array('Error' => 'No account for this user');
-			}
-			else
-			{
-				$user = new ilObjUser($usr_id);
-				if(!$user->getActive())
-				{
-					return array("Error" => 'Account inactive: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access');
-				}
+                $GLOBALS['rbacadmin']->assignUser(4, $userObj->getId());
+            } else {
+                // User already exists, update profile with data from TYPO3's fe_users
+                $userObj = new ilObjUser($usr_id);
+                // Data used from fe_users: email, country, website
+                $remove_auth = false;
+                if (!isset($GLOBALS['ilAuth'])) {
+                    require_once 'Services/PEAR/lib/Auth.php';
+                    if (!class_exists('ilTmpAuth')) {
+                        class ilTmpAuth extends Auth
+                        {
+                            protected $myusername = '';
 
-				if(!$user->checkTimeLimit())
-				{
-					return array("Error" => 'Time limit exceeded: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access');
-				}
+                            public function __construct()
+                            {
+                            }
 
-				$clientip = $user->getClientIP();
-				if(trim($clientip) != '')
-				{
-					$clientip = preg_replace("/[^0-9.?*,:]+/", "", $clientip);
-					$clientip = str_replace(".", "\\.", $clientip);
-					$clientip = str_replace(Array("?", "*", ","), Array("[0-9]", "[0-9]*", "|"), $clientip);
-					if(!preg_match("/^" . $clientip . "$/", $_SERVER["REMOTE_ADDR"]))
-					{
-						return array('Error' => 'Wrong ip: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access');
-					}
-				}
+                            public function getUserName()
+                            {
+                                return $this->myusername;
+                            }
 
-				if(
-					$ilSetting->get('ps_prevent_simultaneous_logins') &&
-					ilObjUser::hasActiveSession($user->getId())
-				)
-				{
-					return array('Error' => 'Simultaneous login: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access');
-				}
+                            public function setUserName($username)
+                            {
+                                $this->myusername = $username;
+                            }
+                        }
+                    }
+                    $tmpauth = new ilTmpAuth();
+                    $tmpauth->setUserName($userObj->getLogin());
+                    $tmpauth->setAuth($userObj->getLogin());
+                    $GLOBALS['ilAuth'] = $tmpauth;
+                }
+                // @todo
+                //$userObj->assignData(array_merge(array('passwd_type' => IL_PASSWD_PLAIN), (array)$sso_userdata));
+                $userObj->update();
+                if ($remove_auth) {
+                    unset($GLOBALS['ilAuth']);
+                }
+            }
+            break;
+        // Perform logon for given $User_Name
+        case 'logon':
+            if (!$usr_id) {
+                return ['Error' => 'No account for this user'];
+            } else {
+                $user = new ilObjUser($usr_id);
+                if (!$user->getActive()) {
+                    return ["Error" => 'Account inactive: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access'];
+                }
 
-				require_once 'Services/PEAR/lib/Auth.php';
-				$auth = new Auth('', '', '', FALSE);
-				$auth->setAuth($user->getLogin());
-				$_SESSION['_auth__authhttp' . md5($config['client_id'])] = $_SESSION['_authsession'];
+                if (!$user->checkTimeLimit()) {
+                    return ["Error" => 'Time limit exceeded: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access'];
+                }
 
-				$fields = array(
-					'createtime' => array("integer", time()),
-					"user_id"    => array("integer", $user->getId()),
-					"expires"    => array("integer", ilSession::getExpireValue()),
-					"data"       => array("clob", serialize($_SESSION)),
-					"ctime"      => array("integer", time()),
-					"type"       => array("integer", 0)
-				);
-				$ilDB->replace("usr_session", array("session_id" => array("text", session_id())), $fields);
+                $clientip = $user->getClientIP();
+                if (trim($clientip) != '') {
+                    $clientip = preg_replace("/[^0-9.?*,:]+/", "", $clientip);
+                    $clientip = str_replace(".", "\\.", $clientip);
+                    $clientip = str_replace(["?", "*", ","], ["[0-9]", "[0-9]*", "|"], $clientip);
+                    if (!preg_match("/^" . $clientip . "$/", $_SERVER["REMOTE_ADDR"])) {
+                        return ['Error' => 'Wrong ip: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access'];
+                    }
+                }
 
-				$return_val = array(
-					0             => array(
-						'CookieName'  => 'ilClientId',
-						'CookieValue' => $config['client_id'],
-					),
-					1             => array(
-						'CookieName'  => 'iltest',
-						'CookieValue' => 'cookie',
-					),
-					"redirecturl" => $sso_url,
-				);
+                if (
+                    $ilSetting->get('ps_prevent_simultaneous_logins') &&
+                    ilObjUser::hasActiveSession($user->getId())
+                ) {
+                    return ['Error' => 'Simultaneous login: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access'];
+                }
 
-				ilObjUser::_updateLastLogin($user->getId());
+                require_once 'Services/PEAR/lib/Auth.php';
+                $auth = new Auth('', '', '', false);
+                $auth->setAuth($user->getLogin());
+                $_SESSION['_auth__authhttp' . md5($config['client_id'])] = $_SESSION['_authsession'];
 
-				return $return_val;
-			}
-			break;
-		case 'logoff':
-			if(!$usr_id) {
-				return array('Error' => 'No account for this user');
-			} else {
-				$ilDB->manipulate("DELETE FROM usr_session WHERE user_id = " . $ilDB->quote($usr_id, "integer"));
-			}
-			break;
-	}
+                $fields = [
+                    'createtime' => ["integer", time()],
+                    "user_id" => ["integer", $user->getId()],
+                    "expires" => ["integer", ilSession::getExpireValue()],
+                    "data" => ["clob", serialize($_SESSION)],
+                    "ctime" => ["integer", time()],
+                    "type" => ["integer", 0],
+                ];
+                $ilDB->replace("usr_session", ["session_id" => ["text", session_id()]], $fields);
+
+                $return_val = [
+                    0 => [
+                        'CookieName' => 'ilClientId',
+                        'CookieValue' => $config['client_id'],
+                    ],
+                    1 => [
+                        'CookieName' => 'iltest',
+                        'CookieValue' => 'cookie',
+                    ],
+                    "redirecturl" => $sso_url,
+                ];
+
+                ilObjUser::_updateLastLogin($user->getId());
+
+                return $return_val;
+            }
+            break;
+        case 'logoff':
+            if (!$usr_id) {
+                return ['Error' => 'No account for this user'];
+            } else {
+                $ilDB->manipulate("DELETE FROM usr_session WHERE user_id = " . $ilDB->quote($usr_id, "integer"));
+            }
+            break;
+    }
 }
