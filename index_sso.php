@@ -5,7 +5,7 @@
 * ILIAS (http://www.ilias.de)
 *
 *  Version            				: 0.4.0
-*  Last update      				: 24.10.2016
+*  Last update      				: 06.04.2016
 *  Developed against App version	: 5.0.5
 *
 *  (c) Bitmotion GmbH, Hannover, Germany
@@ -73,13 +73,13 @@ function get_version()
  * @return         string    Return the session data
  *    Leave stubs if you dont need all four params.
  */
-function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action = "", $sso_userdata = [])
+function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action = "", $sso_userdata = array())
 {
     global $config, $ilDB, $ilSetting;
     $config['client_id'] = 'ssodemo';
 
     if ($sso_version == '') {
-        return ['Error' => 'sso version out of date'];
+        return array('Error' => 'sso version out of date');
     }
 
     $usr_id = ilObjUser::_loginExists($User_Name);
@@ -92,14 +92,14 @@ function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action =
         case 'create_modify':
             // User does not exist yet
             if (!$usr_id) {
-                $userData = [
+                $userData = array(
                     'login' => $User_Name,
                     'email' => $sso_userdata['email'],
                     'active' => 1,
                     'passwd_type' => IL_PASSWD_PLAIN,
                     'auth_mode' => 'default',
                     'time_limit_unlimited' => 1,
-                ];
+                );
                 $userData = array_merge($userData, (array)$sso_userdata);
 
                 $userObj = new ilObjUser();
@@ -170,24 +170,24 @@ function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action =
         // Perform logon for given $User_Name
         case 'logon':
             if (!$usr_id) {
-                return ['Error' => 'No account for this user'];
+                return array('Error' => 'No account for this user');
             } else {
                 $user = new ilObjUser($usr_id);
                 if (!$user->getActive()) {
-                    return ["Error" => 'Account inactive: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access'];
+                    return array("Error" => 'Account inactive: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access');
                 }
 
                 if (!$user->checkTimeLimit()) {
-                    return ["Error" => 'Time limit exceeded: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access'];
+                    return array("Error" => 'Time limit exceeded: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access');
                 }
 
                 $clientip = $user->getClientIP();
                 if (trim($clientip) != '') {
                     $clientip = preg_replace("/[^0-9.?*,:]+/", "", $clientip);
                     $clientip = str_replace(".", "\\.", $clientip);
-                    $clientip = str_replace(["?", "*", ","], ["[0-9]", "[0-9]*", "|"], $clientip);
+                    $clientip = str_replace(Array("?", "*", ","), Array("[0-9]", "[0-9]*", "|"), $clientip);
                     if (!preg_match("/^" . $clientip . "$/", $_SERVER["REMOTE_ADDR"])) {
-                        return ['Error' => 'Wrong ip: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access'];
+                        return array('Error' => 'Wrong ip: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access');
                     }
                 }
 
@@ -195,7 +195,7 @@ function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action =
                     $ilSetting->get('ps_prevent_simultaneous_logins') &&
                     ilObjUser::hasActiveSession($user->getId())
                 ) {
-                    return ['Error' => 'Simultaneous login: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access'];
+                    return array('Error' => 'Simultaneous login: ' . $user->getLogin() . ' (' . $user->getId() . '), denied access');
                 }
 
                 require_once 'Services/PEAR/lib/Auth.php';
@@ -203,27 +203,27 @@ function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action =
                 $auth->setAuth($user->getLogin());
                 $_SESSION['_auth__authhttp' . md5($config['client_id'])] = $_SESSION['_authsession'];
 
-                $fields = [
-                    'createtime' => ["integer", time()],
-                    "user_id" => ["integer", $user->getId()],
-                    "expires" => ["integer", ilSession::getExpireValue()],
-                    "data" => ["clob", serialize($_SESSION)],
-                    "ctime" => ["integer", time()],
-                    "type" => ["integer", 0],
-                ];
-                $ilDB->replace("usr_session", ["session_id" => ["text", session_id()]], $fields);
+                $fields = array(
+                    'createtime' => array("integer", time()),
+                    "user_id" => array("integer", $user->getId()),
+                    "expires" => array("integer", ilSession::getExpireValue()),
+                    "data" => array("clob", serialize($_SESSION)),
+                    "ctime" => array("integer", time()),
+                    "type" => array("integer", 0),
+                );
+                $ilDB->replace("usr_session", array("session_id" => array("text", session_id())), $fields);
 
-                $return_val = [
-                    0 => [
+                $return_val = array(
+                    0 => array(
                         'CookieName' => 'ilClientId',
                         'CookieValue' => $config['client_id'],
-                    ],
-                    1 => [
+                    ),
+                    1 => array(
                         'CookieName' => 'iltest',
                         'CookieValue' => 'cookie',
-                    ],
+                    ),
                     "redirecturl" => $sso_url,
-                ];
+                );
 
                 ilObjUser::_updateLastLogin($user->getId());
 
@@ -232,7 +232,7 @@ function sso($User_Name, $ip, $agent, $sso_url, $sso_version = "", $sso_action =
             break;
         case 'logoff':
             if (!$usr_id) {
-                return ['Error' => 'No account for this user'];
+                return array('Error' => 'No account for this user');
             } else {
                 $ilDB->manipulate("DELETE FROM usr_session WHERE user_id = " . $ilDB->quote($usr_id, "integer"));
             }
