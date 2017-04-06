@@ -5,7 +5,7 @@
 * ILIAS (http://www.ilias.de)
 *
 *  Version            				: 0.4.0
-*  Last update      				: 06.04.2016
+*  Last update      				: 06.04.2017
 *  Developed against App version	: 5.0.5
 *
 *  (c) Bitmotion GmbH, Hannover, Germany
